@@ -38,13 +38,13 @@ def run():
         target_date = get_next_monday()
         print(f"Targeting next Monday: {target_date}")
 
-        print("Opening reservation form for Court 1 at 5:00 PM...")
+        print("Opening reservation form for Court 1 at 8:00 PM...")
         with page.expect_navigation():
-            page.evaluate(f"Reserve_Single('1', '35', '{target_date}');")
+            page.evaluate(f"Reserve_Single('1', '41', '{target_date}');")
 
         print("Populating reservation form fields...")
         page.select_option('#Court_Num', '1')             # Tennis 1/PB 1
-        page.select_option('#Start_Time', '35')           # 5:00 PM
+        page.select_option('#Start_Time', '41')           # 8:00 PM
         page.select_option('#Duration', '3')              # 1 hour 30 minutes
         page.select_option('#Hybrid', 'P')                # Pickleball
         
