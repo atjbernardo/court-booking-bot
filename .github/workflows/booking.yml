@@ -29,3 +29,10 @@ jobs:
           PORTAL_USER: ${{ secrets.PORTAL_USER }}
           PORTAL_PASS: ${{ secrets.PORTAL_PASS }}
         run: python auto_login.py
+
+      - name: Upload Failure Screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: booking-failure-screenshot
+          path: booking_failure.png
