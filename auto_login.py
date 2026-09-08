@@ -12,22 +12,22 @@ USERNAME = os.environ.get("PORTAL_USER")
 PASSWORD = os.environ.get("PORTAL_PASS")
 
 # Email Configuration Setup
-SMTP_USER = os.environ.get("SMTP_USER") # The email address sending the alerts
-SMTP_PASS = os.environ.get("SMTP_PASS") # The App Password for the sending email
-SMTP_SERVER = "smtp.gmail.com" # Assuming you send via Gmail, change if using Outlook/Yahoo
+SMTP_USER = os.environ.get("SMTP_USER")
+SMTP_PASS = os.environ.get("SMTP_PASS")
+SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 465
 
 RECIPIENT_EMAILS = ["atjbernardo@gmail.com", "nalvior@hotmail.com"]
 
 
-def get_next_wednesday():
+def get_next_tuesday():
     today = datetime.now()
     # Python's weekday(): Monday is 0, Tuesday is 1, Wednesday is 2...
-    days_until_wednesday = (2 - today.weekday()) % 7
-    if days_until_wednesday == 0:
-        days_until_wednesday = 7
-    next_wednesday = today + timedelta(days=days_until_wednesday)
-    return f"{next_wednesday.month}/{next_wednesday.day}/{next_wednesday.year}"
+    days_until_tuesday = (1 - today.weekday()) % 7
+    if days_until_tuesday == 0:
+        days_until_tuesday = 7
+    next_tuesday = today + timedelta(days=days_until_tuesday)
+    return f"{next_tuesday.month}/{next_tuesday.day}/{next_tuesday.year}"
 
 
 def send_email(subject, body):
@@ -63,6 +63,7 @@ def write_github_summary(markdown_text):
 
 def run():
     with sync_playwright() as p:
+        # Running headless (invisible) for GitHub Actions
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
@@ -81,16 +82,17 @@ def run():
         page.click("#CheckUser")
         page.wait_for_load_state("networkidle")
 
-        target_date = get_next_wednesday()
-        print(f"Targeting next Wednesday: {target_date}")
+        target_date = get_next_tuesday()
+        print(f"Targeting next Tuesday: {target_date}")
 
-        print("Opening reservation form for Court 1 at 8:00 PM...")
+        print("Opening reservation form for Court 1 at 9:00 AM...")
+        # 19 represents 9:00 AM in the system's dropdown values
         with page.expect_navigation():
-            page.evaluate(f"Reserve_Single('1', '41', '{target_date}');")
+            page.evaluate(f"Reserve_Single('1', '19', '{target_date}');")
 
         print("Populating reservation form fields...")
         page.select_option("#Court_Num", "1")  # Tennis 1/PB 1
-        page.select_option("#Start_Time", "41")  # 8:00 PM
+        page.select_option("#Start_Time", "19")  # 9:00 AM
         page.select_option("#Duration", "3")  # 1 hour 30 minutes
         page.select_option("#Hybrid", "P")  # Pickleball
 
@@ -130,9 +132,9 @@ def run():
 
             # GitHub Summary
             summary_text = (
-                f"### ❌ Court Booking Failed\n"
-                f"* **Target Date:** {target_date}\n"
-                f"* **Time:** 8:00 PM (Court 1)\n"
+                f"### ❌ TEST Court Booking Failed\n"
+                f"* **Target Date:** {target_date} (Tuesday)\n"
+                f"* **Time:** 9:00 AM (Court 1)\n"
                 f"* **Reason:** Time slot was unavailable, already reserved, or returned an error."
             )
             write_github_summary(summary_text)
@@ -140,7 +142,7 @@ def run():
             # Send Failure Email
             send_email(
                 subject=f"❌ Pickleball Court Booking Failed ({target_date})",
-                body=f"Hello,\n\nThe automated script failed to book the Pickleball court for Wednesday, {target_date} at 8:00 PM.\n\nThe time slot may have already been taken by someone else or the system returned an error."
+                body=f"Hello,\n\nThe automated script failed to book the Pickleball court for Tuesday, {target_date} at 9:00 AM.\n\nThe time slot may have already been taken by someone else or the system returned an error."
             )
 
             browser.close()
@@ -152,9 +154,9 @@ def run():
             
             # GitHub Summary
             summary_text = (
-                f"### ✅ Court Booking Successful!\n"
-                f"* **Target Date:** {target_date}\n"
-                f"* **Time:** 8:00 PM (Court 1)\n"
+                f"### ✅ TEST Court Booking Successful!\n"
+                f"* **Target Date:** {target_date} (Tuesday)\n"
+                f"* **Time:** 9:00 AM (Court 1)\n"
                 f"* **Type:** Pickleball"
             )
             write_github_summary(summary_text)
@@ -162,7 +164,7 @@ def run():
             # Send Success Email
             send_email(
                 subject=f"✅ Pickleball Court Booked! ({target_date})",
-                body=f"Hello,\n\nGreat news! The automated script successfully booked the Pickleball court for Wednesday, {target_date} at 8:00 PM (Court 1).\n\nEnjoy your game!"
+                body=f"Hello,\n\nGreat news! The automated script successfully booked the Pickleball court for Tuesday, {target_date} at 9:00 AM (Court 1).\n\nIMPORTANT: Since this was a test, please log in and manually cancel this reservation if you do not actually intend to play at this time."
             )
 
         browser.close()
