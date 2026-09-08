@@ -28,6 +28,8 @@ jobs:
         env:
           PORTAL_USER: ${{ secrets.PORTAL_USER }}
           PORTAL_PASS: ${{ secrets.PORTAL_PASS }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: python auto_login.py
 
       - name: Upload Failure Screenshot
