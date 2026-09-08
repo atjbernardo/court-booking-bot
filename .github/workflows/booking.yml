@@ -1,9 +1,10 @@
-name: Daily Court Booking Bot
+name: Weekly Court Booking Bot
 
 on:
   schedule:
-    # Runs at 05:00 UTC every night (12:00 AM Central Daylight Time)
-    - cron: '0 5 * * *'
+    # 0 5 means 5:00 AM UTC (which is exactly 12:00 AM Midnight Central Daylight Time). 
+    # The '3' at the end means it ONLY runs on Wednesdays.
+    - cron: '0 5 * * 3'
   workflow_dispatch:
 
 jobs:
